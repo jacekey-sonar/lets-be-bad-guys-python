@@ -27,14 +27,13 @@ jobs:
         python -m venv .venv
         source .venv/bin/activate
         pip install --upgrade pip
-        # Install production dependencies
+        # Install production dependencies (includes pytest, pytest-django, pytest-cov)
         pip install -r requirements.txt
-        # Explicitly install test tooling
-        pip install pytest pytest-cov
     
     - name: Run tests with coverage
       # Execute pytest from the venv
-      run: .venv/bin/pytest --cov=main --cov-report=xml --cov-report=term
+      # Note: Django settings are configured in pytest.ini
+      run: .venv/bin/pytest --cov=badguys --cov-report=xml --cov-report=term
     
     - name: Upload coverage for SonarQube
       uses: actions/upload-artifact@v4
