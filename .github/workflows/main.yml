@@ -20,14 +20,17 @@ jobs:
       with:
         python-version: '3.11'
     
-    - name: Install dependencies (including dev group)
-      # Create venv and install dependencies needed for testing (including pytest-cov)
+    - name: Install dependencies (Production and Dev)
+      # Create venv and install dependencies needed for testing.
+      # Assumes a 'requirements.txt' exists for production dependencies.
       run: |
         python -m venv .venv
         source .venv/bin/activate
         pip install --upgrade pip
-        # Assuming 'pytest-cov' is listed in the 'dev' extra/group in pyproject.toml
-        pip install -e .[dev]
+        # Install production dependencies
+        pip install -r requirements.txt
+        # Explicitly install test tooling
+        pip install pytest pytest-cov
     
     - name: Run tests with coverage
       # Execute pytest from the venv
@@ -54,14 +57,16 @@ jobs:
       with:
         python-version: '3.11'
     
-    - name: Install dependencies (including security/dev tools)
-      # Create venv and install dependencies needed for safety check
+    - name: Install dependencies and security tool
+      # Create venv and install dependencies needed for safety check.
       run: |
         python -m venv .venv
         source .venv/bin/activate
         pip install --upgrade pip
-        # Assuming 'safety' is listed in the 'dev' extra/group in pyproject.toml
-        pip install -e .[dev]
+        # Install production dependencies (for full scan context)
+        pip install -r requirements.txt
+        # Explicitly install safety
+        pip install safety
     
     - name: Run safety check
       # Execute safety check from the venv
@@ -93,23 +98,19 @@ jobs:
       with:
         python-version: '3.11'
     
-    - name: Install Production Dependencies and Generate requirements.txt
-      # Create venv, install production dependencies, and use pip freeze to create requirements.txt
+    - name: Check for requirements.txt for SonarCloud
+      # Since we are not using 'pip install .', we rely on a committed requirements.txt
       run: |
-        python -m venv .venv
-        source .venv/bin/activate
-        pip install --upgrade pip
-        # Install production dependencies
-        pip install .
-        # Generate requirements.txt for SonarCloud dependency analysis
-        pip freeze > requirements.txt
+        if [ ! -f "requirements.txt" ]; then
+          echo "WARNING: requirements.txt not found. SonarCloud dependency analysis will be skipped."
+        fi
     
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: https://sonarcloud.io
-      # Configuration is read from sonar-project.properties file
+      # Configuration is read from sonar-project.properties file, and requirements.txt is used for dependency analysis
       continue-on-error: true
     
     - name: SonarQube Quality Gate check
