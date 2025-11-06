@@ -8,17 +8,17 @@ on:
 
 jobs:
   test:
-    name: Test on Python 3.11
+    name: Test on Python 3.9
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Set up Python 3.11
+    - name: Set up Python 3.9
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: '3.9'
     
     - name: Install dependencies (Production and Dev)
       # Create venv and install dependencies needed for testing.
@@ -51,10 +51,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Set up Python 3.11
+    - name: Set up Python 3.9
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: '3.9'
     
     - name: Install dependencies and security tool
       # Create venv and install dependencies needed for safety check.
@@ -90,12 +90,12 @@ jobs:
       with:
         name: coverage-for-sonar
         path: .
-      # This artifact comes from Python 3.11 test run
+      # This artifact comes from Python 3.9 test run
     
-    - name: Set up Python 3.11
+    - name: Set up Python 3.9
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: '3.9'
     
     - name: Check for requirements.txt for SonarCloud
       # Since we are not using 'pip install .', we rely on a committed requirements.txt
