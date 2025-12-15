@@ -70,25 +70,4 @@ jobs:
         SONAR_HOST_URL: https://sonarcloud.io
       continue-on-error: true
 
-  summary:
-    name: Build Summary
-    runs-on: ubuntu-latest
-    # Wait for all previous jobs, regardless of their success/failure
-    needs: [test, security, sonarqube] 
-    if: always()
-    
-    steps:
-    - name: Display final status
-      run: |
-        echo "--- CI/CD Pipeline Summary ---"
-        echo "Tests: ${{ needs.test.result }}"
-        echo "Security Scan: ${{ needs.security.result }}"
-        echo "SonarCloud Analysis: ${{ needs.sonarqube.result }}"
-        
-        # A simple check to fail the summary job if the critical Test job failed
-        if [ "${{ needs.test.result }}" = "failure" ]; then
-          echo "The critical Test job failed."
-          exit 1
-        else
-          echo "Core pipeline completed successfully."
-        fi
+  
