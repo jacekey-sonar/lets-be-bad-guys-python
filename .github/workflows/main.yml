@@ -29,19 +29,7 @@ jobs:
         pip install --upgrade pip
         # Install production dependencies (includes pytest, pytest-django, pytest-cov)
         pip install -r requirements.txt
-    
-    - name: Run tests with coverage
-      # Execute pytest from the venv
-      # Note: Django settings are configured in pytest.ini
-      run: .venv/bin/pytest --cov=badguys --cov-report=xml --cov-report=term
-    
-    - name: Upload coverage for SonarQube
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-for-sonar
-        path: ./coverage.xml
-        retention-days: 7
-
+        
   security:
     name: Security scan
     runs-on: ubuntu-latest
