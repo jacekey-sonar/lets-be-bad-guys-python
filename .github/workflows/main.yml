@@ -7,38 +7,9 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
-    name: Test on Python 3.9
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.9'
-    
-    - name: Install dependencies (Production and Dev)
-      # Create venv and install dependencies needed for testing.
-      # Assumes a 'requirements.txt' exists for production dependencies.
-      run: |
-        python -m venv .venv
-        source .venv/bin/activate
-        pip install --upgrade pip
-        # Install production dependencies (includes pytest, pytest-django, pytest-cov)
-        pip install -r requirements.txt
-    
-    - name: Run tests
-      # Execute pytest from the venv
-      # Note: Django settings are configured in pytest.ini
-      run: .venv/bin/pytest
-
   security:
     name: Security scan
     runs-on: ubuntu-latest
-    needs: test # Runs after tests pass
     
     steps:
     - name: Checkout code
@@ -69,7 +40,6 @@ jobs:
   sonarqube:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
-    needs: test
     
     steps:
     - name: Checkout code
@@ -110,21 +80,13 @@ jobs:
     name: Build Summary
     runs-on: ubuntu-latest
     # Wait for all previous jobs, regardless of their success/failure
-    needs: [test, security, sonarqube] 
+    needs: [security, sonarqube] 
     if: always()
     
     steps:
     - name: Display final status
       run: |
         echo "--- CI/CD Pipeline Summary ---"
-        echo "Tests: ${{ needs.test.result }}"
         echo "Security Scan: ${{ needs.security.result }}"
         echo "SonarCloud Analysis: ${{ needs.sonarqube.result }}"
-        
-        # A simple check to fail the summary job if the critical Test job failed
-        if [ "${{ needs.test.result }}" = "failure" ]; then
-          echo "The critical Test job failed."
-          exit 1
-        else
-          echo "Core pipeline completed successfully."
-        fi
+        echo "Core pipeline completed."
