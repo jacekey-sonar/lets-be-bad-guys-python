@@ -61,14 +61,15 @@ jobs:
         fi
     
     - name: SonarQube Scan
+      id: sonar-scan
       uses: sonarsource/sonarqube-scan-action@master
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: https://sonarcloud.io
-      # Configuration is read from sonar-project.properties file
       continue-on-error: true
     
     - name: SonarQube Quality Gate check
+      if: steps.sonar-scan.outcome == 'success'
       uses: sonarsource/sonarqube-quality-gate-action@master
       timeout-minutes: 5
       env:
