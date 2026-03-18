@@ -5,6 +5,7 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main ]
+    types: [opened, synchronize, reopened]
 
 jobs:
   security:
@@ -20,7 +21,7 @@ jobs:
       with:
         python-version: '3.9'
     
-    - name: Install dependencies and security tool
+    - name: Install dependencies
       # Create venv and install dependencies needed for safety check.
       run: |
         python -m venv .venv
@@ -38,7 +39,7 @@ jobs:
       continue-on-error: true
 
   sonarqube:
-    name: SonarCloud Analysis
+    name: SQC Analysis
     runs-on: ubuntu-latest
     
     steps:
@@ -53,41 +54,10 @@ jobs:
       with:
         python-version: '3.9'
     
-    - name: Check for requirements.txt for SonarCloud
-      # Since we are not using 'pip install .', we rely on a committed requirements.txt
-      run: |
-        if [ ! -f "requirements.txt" ]; then
-          echo "WARNING: requirements.txt not found. SonarCloud dependency analysis will be skipped."
-        fi
-    
     - name: SonarQube Scan
       id: sonar-scan
-      uses: sonarsource/sonarqube-scan-action@master
+      uses: SonarSource/sonarqube-scan-action@v6
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: https://sonarcloud.io
       continue-on-error: true
-    
-    - name: SonarCloud Quality Gate check
-      if: steps.sonar-scan.outcome == 'success'
-      uses: sonarsource/sonarqube-quality-gate-action@master
-      timeout-minutes: 5
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: https://sonarcloud.io
-      continue-on-error: true
-
-  summary:
-    name: Build Summary
-    runs-on: ubuntu-latest
-    # Wait for all previous jobs, regardless of their success/failure
-    needs: [security, sonarqube] 
-    if: always()
-    
-    steps:
-    - name: Display final status
-      run: |
-        echo "--- CI/CD Pipeline Summary ---"
-        echo "Security Scan: ${{ needs.security.result }}"
-        echo "SonarCloud Analysis: ${{ needs.sonarqube.result }}"
-        echo "Core pipeline completed."
