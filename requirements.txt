@@ -7,5 +7,12 @@ Pillow==6.2.0
 PyYAML==5.3
 requests==2.20.0
 urllib3==1.24.1
+<<<<<<< HEAD
 PyJWT==1.7.1
 Flask==0.12.2
+=======
+Pillow==8.2.0
+cryptography==2.3
+paramiko==1.7.5
+lxml==3.3.5
+>>>>>>> 526dc2c (Add vulnerable dependencies for demo)
